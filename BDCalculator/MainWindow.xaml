@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BDCalculator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="400" Width="625">
+        Title="Birthday Calculator" Height="400" Width="625">
     <Grid>
         <DatePicker Name="datePicker" HorizontalAlignment="Center" Margin="-100,26,0,0" VerticalAlignment="Top" Width="115" Height="25"/>
         <Button Name="calculate" Content="Calculate" VerticalAlignment="Top" Margin="150,26,0,0" HorizontalAlignment="Center" Width="115" Height="25" Click="Calculate_OnClick"/>

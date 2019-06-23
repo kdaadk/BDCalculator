@@ -1,0 +1,15 @@
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\bin\Debug\BDCalculator.exe.config
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\bin\Debug\BDCalculator.exe
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\bin\Debug\BDCalculator.pdb
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\BDCalculator.csprojAssemblyReference.cache
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\MainWindow.g.cs
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\App.g.cs
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\BDCalculator_MarkupCompile.cache
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\BDCalculator_MarkupCompile.lref
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\MainWindow.baml
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\BDCalculator.g.resources
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\BDCalculator.Properties.Resources.resources
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\BDCalculator.csproj.GenerateResource.cache
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\BDCalculator.csproj.CoreCompileInputs.cache
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\BDCalculator.exe
+C:\Users\Dmitro\Desktop\repos\BDCalculator\BDCalculator\obj\Debug\BDCalculator.pdb

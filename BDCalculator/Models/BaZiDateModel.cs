@@ -5,13 +5,18 @@ namespace BDCalculator.Models
         public BaZiModel Date { get; set; }
         public BaZiModel Month { get; set; }
         public BaZiModel Year { get; set; }
-
-        public PentagramModel Pentagram { get; set; }
+        public BaZiModel Hour { get; set; }
+        public BaZiModel Season { get; set; }
     }
 
     public class BaZiModel
     {
-        public Elements Element { get; set; }
-        public Animals Animal { get; set; }
+        public Element Element { get; set; }
+        public Animal Animal { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Animal.ToString()} / {Element.ToString()}";
+        }
     }
 }

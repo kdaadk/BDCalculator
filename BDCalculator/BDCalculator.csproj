@@ -35,8 +35,10 @@
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="System" />
+        <Reference Include="System.ComponentModel.DataAnnotations" />
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
+        <Reference Include="System.Net" />
         <Reference Include="System.Xml" />
         <Reference Include="System.Xaml">
             <RequiredTargetFramework>4.0</RequiredTargetFramework>
@@ -50,6 +52,7 @@
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
         </ApplicationDefinition>
+        <Compile Include="EnumHelper.cs" />
         <Page Include="MainWindow.xaml">
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
@@ -80,11 +83,13 @@
         </Compile>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Models\Animals.cs" />
+        <Compile Include="Models\Animal.cs" />
         <Compile Include="Models\BaZiDateModel.cs" />
-        <Compile Include="Models\Elements.cs" />
+        <Compile Include="Models\ComboBoxItemModel.cs" />
+        <Compile Include="Models\Element.cs" />
         <Compile Include="Models\PentagramModel.cs" />
         <Compile Include="Models\PentagramValuesModel.cs" />
+        <Compile Include="Models\PentagramValuesModelExtensions.cs" />
         <Compile Include="Properties\AssemblyInfo.cs">
             <SubType>Code</SubType>
         </Compile>

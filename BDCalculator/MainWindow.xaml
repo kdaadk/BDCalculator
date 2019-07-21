@@ -5,17 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BDCalculator"
         mc:Ignorable="d"
-        Title="Birthday Calculator" Height="400" Width="625">
+        Title="Birthday Calculator" Height="400" Width="700">
     <Grid>
-        <DatePicker Name="datePicker" HorizontalAlignment="Center" Margin="-100,26,0,0" VerticalAlignment="Top" Width="115" Height="25"/>
-        <Button Name="calculate" Content="Calculate" VerticalAlignment="Top" Margin="150,26,0,0" HorizontalAlignment="Center" Width="115" Height="25" Click="Calculate_OnClick"/>
-        
-        
-        <Canvas Name="canvas" Background="Lavender" Height="270" Width="500" VerticalAlignment="Bottom" Margin="0,0,0,20">
-            <Polygon Name="pentagramPolygon" Points="150 50, 250 125, 200 225, 100 225, 50 125, 150 50" Stroke="Black" StrokeThickness="2" /> 
-            
-            
-        </Canvas>
-        
+        <DatePicker Name="datePicker" HorizontalAlignment="Center" Margin="-350,26,0,0"
+                    VerticalAlignment="Top" Width="115" Height="25" />
+        <Button Content="Calculate" VerticalAlignment="Top" Margin="-150,26,0,0"
+                HorizontalAlignment="Center" Width="80" Height="25" Click="Calculate_OnClick" />
+
+        <StackPanel Grid.Column="0" Margin="120,28,0,0" VerticalAlignment="Top"
+                    HorizontalAlignment="Center" Width="130" Height="25">
+            <ComboBox Name="comboBox1"
+                      Text="Add season/hour"
+                      IsEditable="true"
+                      IsReadOnly="true" />
+            <TextBlock Text="{Binding ElementName=comboBox1, Path=SelectedItem}" />
+        </StackPanel>
+
+        <Button Content="Calculate with h" VerticalAlignment="Top" Margin="350,26,0,0"
+                HorizontalAlignment="Center" Width="100" Height="25" Click="CalculateWithHour_OnClick" />
+        <CheckBox x:Name="seasonCheckBox" IsChecked="False" VerticalAlignment="Top" Margin="550,32,0,0"
+                  HorizontalAlignment="Center" Content="Season" Checked="seasonCheckBox_Checked"
+                  Unchecked="seasonCheckBox_Unchecked" />
+
+        <Canvas Name="canvas" Background="Lavender" Height="270" Width="500" VerticalAlignment="Top" Margin="0,70,0,20" />
     </Grid>
 </Window>

@@ -5,19 +5,19 @@ namespace BDCalculator.Domain
 {
     public class ChineseDateTransformer
     {
-        private JanuaryBound januaryBound;
-        private FebruaryBound februaryBound;
-        private MarchBound marchBound;
-        private AprilBound aprilBound;
-        private MayBound mayBound;
-        private JuneBound juneBound;
-        private JulyBound julyBound;
-        private AugustBound augustBound;
-        private SeptemberBound septemberBound;
-        private OctoberBound octoberBound;
-        private NovemberBound novemberBound;
-        private DecemberBound decemberBound;
-        
+        private readonly AprilBound aprilBound;
+        private readonly AugustBound augustBound;
+        private readonly DecemberBound decemberBound;
+        private readonly FebruaryBound februaryBound;
+        private readonly JanuaryBound januaryBound;
+        private readonly JulyBound julyBound;
+        private readonly JuneBound juneBound;
+        private readonly MarchBound marchBound;
+        private readonly MayBound mayBound;
+        private readonly NovemberBound novemberBound;
+        private readonly OctoberBound octoberBound;
+        private readonly SeptemberBound septemberBound;
+
         public ChineseDateTransformer()
         {
             januaryBound = new JanuaryBound();
@@ -33,45 +33,45 @@ namespace BDCalculator.Domain
             novemberBound = new NovemberBound();
             decemberBound = new DecemberBound();
         }
-        
+
         public DateTime Transform(DateTime source)
         {
             if (source.Month == januaryBound.Index)
                 return Transform(source, januaryBound, 1);
-            
+
             if (source.Month == februaryBound.Index)
                 return Transform(source, februaryBound);
-            
+
             if (source.Month == marchBound.Index)
                 return Transform(source, marchBound);
-            
+
             if (source.Month == aprilBound.Index)
                 return Transform(source, aprilBound);
-            
+
             if (source.Month == mayBound.Index)
                 return Transform(source, mayBound);
-            
+
             if (source.Month == juneBound.Index)
                 return Transform(source, juneBound);
-            
+
             if (source.Month == julyBound.Index)
                 return Transform(source, julyBound);
-            
+
             if (source.Month == augustBound.Index)
                 return Transform(source, augustBound);
-            
+
             if (source.Month == septemberBound.Index)
                 return Transform(source, septemberBound);
-            
+
             if (source.Month == octoberBound.Index)
                 return Transform(source, octoberBound);
-            
+
             if (source.Month == novemberBound.Index)
                 return Transform(source, novemberBound);
-            
+
             if (source.Month == decemberBound.Index)
                 return Transform(source, decemberBound);
-            
+
             throw new ArgumentException();
         }
 

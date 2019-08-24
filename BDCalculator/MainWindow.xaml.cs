@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -25,50 +27,32 @@ namespace BDCalculator
             InitializeComponent();
         }
 
-        private void Calculate_OnClick(object sender, RoutedEventArgs e)
-        {
-            var calculator = new BaZiCalculator();
-            var selectedDate = datePicker.SelectedDate;
-
-            if (selectedDate == null)
-            {
-                MessageBox.Show("Select a birthday", "No date selected", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            baZiModel = calculator.GetBaZiDateModel(selectedDate.Value);
-            Render();
-
-            AddItemsToComboBox();
-            birthDate = selectedDate.Value;
-        }
-
         private void AddItemsToComboBox()
         {
-            comboBox1.Items.Clear();
+            hourComboBox.Items.Clear();
 
             if (baZiModel.Date == null)
                 return;
 
             if (baZiModel.Date.Element == Element.YangWood || baZiModel.Date.Element == Element.YinEarth)
                 foreach (var item in GetComboBoxItems(1, 1))
-                    comboBox1.Items.Add(item);
+                    hourComboBox.Items.Add(item);
 
             if (baZiModel.Date.Element == Element.YinWood || baZiModel.Date.Element == Element.YangMetal)
                 foreach (var item in GetComboBoxItems(3, 1))
-                    comboBox1.Items.Add(item);
+                    hourComboBox.Items.Add(item);
 
             if (baZiModel.Date.Element == Element.YangFire || baZiModel.Date.Element == Element.YinMetal)
                 foreach (var item in GetComboBoxItems(5, 1))
-                    comboBox1.Items.Add(item);
+                    hourComboBox.Items.Add(item);
 
             if (baZiModel.Date.Element == Element.YinFire || baZiModel.Date.Element == Element.YangWater)
                 foreach (var item in GetComboBoxItems(7, 1))
-                    comboBox1.Items.Add(item);
+                    hourComboBox.Items.Add(item);
 
             if (baZiModel.Date.Element == Element.YangEarth || baZiModel.Date.Element == Element.YinWater)
                 foreach (var item in GetComboBoxItems(9, 1))
-                    comboBox1.Items.Add(item);
+                    hourComboBox.Items.Add(item);
         }
 
         private List<ComboBoxItemModel> GetComboBoxItems(int firstElement, int firstAnimal)
@@ -180,17 +164,6 @@ namespace BDCalculator
             canvas.Children.Add(textBlock);
         }
 
-        private void CalculateWithHour_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (comboBox1.SelectedItem != null)
-            {
-                var item = (ComboBoxItemModel) comboBox1.SelectedItem;
-                baZiModel.Hour = new BaZiModel {Animal = item.Value.Animal, Element = item.Value.Element};
-
-                Render();
-            }
-        }
-
         private void seasonCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             if (baZiModel == null)
@@ -218,6 +191,50 @@ namespace BDCalculator
             AddBaZiModel(baZiModel);
             pentagramModel = calculator.GetPentagram(baZiModel);
             AddPentagramValues(pentagramModel);
+        }
+
+        private void BirthDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            baZiModel = calculator.GetBaZiDateModel(birthDatePicker.SelectedDate.Value);
+            Render();
+
+            AddItemsToComboBox();
+            birthDate = birthDatePicker.SelectedDate.Value;
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (hourComboBox.SelectedItem != null)
+            {
+                var item = (ComboBoxItemModel) hourComboBox.SelectedItem;
+                baZiModel.Hour = new BaZiModel {Animal = item.Value.Animal, Element = item.Value.Element};
+
+                Render();
+            }
+        }
+
+        private void EventDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            void AddPeriodToCanvas(Period period, int y)
+            {
+                AddTextToCanvas(300, y,
+                    period.Start.ToShortDateString() + " - " + period.End.ToShortDateString() + " / " + period.Energy);
+            }
+
+            var cycleModel = GetCycleModel();
+            AddPeriodToCanvas(cycleModel.Big.EventPeriod, 170);
+            AddPeriodToCanvas(cycleModel.Year.EventPeriod, 190);
+            AddPeriodToCanvas(cycleModel.Season.EventPeriod, 210);
+            AddPeriodToCanvas(cycleModel.Month.EventPeriod, 230);
+            AddPeriodToCanvas(cycleModel.Day.EventPeriod, 250);
+        }
+
+        private CycleModel GetCycleModel()
+        {
+            var eventDate = eventDatePicker.SelectedDate.Value;
+            var builder = new CycleModelBuilder();
+
+            return builder.Build(birthDate, eventDate);
         }
     }
 }

@@ -3,30 +3,33 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:bdCalculator="clr-namespace:BDCalculator"
         mc:Ignorable="d"
-        Title="Birthday Calculator" Height="400" Width="700">
+        Title="Birthday Calculator" Height="750" Width="1000">
     <Grid>
-        <Label Margin="130,0,0,0">Birthday</Label>
+        <Label HorizontalAlignment="Center" Margin="-350,0,0,0" VerticalAlignment="Top">День рождения</Label>
         <DatePicker Name="birthDatePicker" HorizontalAlignment="Center" Margin="-350,26,0,0"
-                    VerticalAlignment="Top" Width="115" SelectedDateChanged="BirthDatePicker_SelectedDateChanged" />
+                    VerticalAlignment="Top" Width="115" SelectedDateChanged="BirthDatePicker_SelectedDateChanged"
+                    bdCalculator:DatePickerWatermarkBehaviour.Watermark="Выбрать дату"/>
         
         <StackPanel Grid.Column="0" Margin="-80,28,0,0" VerticalAlignment="Top"
                     HorizontalAlignment="Center" Width="130">
             <ComboBox Name="hourComboBox"
-                      Text="Add season/hour"
+                      Text="Выбрать час"
                       IsEditable="true"
                       IsReadOnly="true"
                       SelectionChanged="ComboBox_SelectionChanged"/>
         </StackPanel>
         
         <CheckBox IsChecked="False" VerticalAlignment="Top" Margin="140,32,0,0"
-                  HorizontalAlignment="Center" Content="Season" Checked="seasonCheckBox_Checked"
-                  Unchecked="seasonCheckBox_Unchecked" />
+                  HorizontalAlignment="Center" Content="Сезон" Checked="seasonCheckBox_Checked"
+                  Unchecked="seasonCheckBox_Unchecked" Name="seasonCheckBox" />
         
-        <Label Margin="480,0,0,0">Event</Label>
+        <Label HorizontalAlignment="Center" Margin="330,0,0,0" VerticalAlignment="Top">День заболевания</Label>
         <DatePicker Name="eventDatePicker" HorizontalAlignment="Center" Margin="330,26,0,0"
-                    VerticalAlignment="Top" Width="115" SelectedDateChanged="EventDatePicker_SelectedDateChanged" />
-
-        <Canvas Name="canvas" Background="Lavender" Height="270" Width="500" VerticalAlignment="Top" Margin="0,70,0,20" />
+                    VerticalAlignment="Top" Width="115" SelectedDateChanged="EventDatePicker_SelectedDateChanged"
+                    bdCalculator:DatePickerWatermarkBehaviour.Watermark="Выбрать дату"/>
+        
+        <Canvas Name="canvas" Background="Lavender" Height="600" Width="900" VerticalAlignment="Top" Margin="0,70,0,20" />
     </Grid>
 </Window>

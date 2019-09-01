@@ -39,6 +39,7 @@
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
         <Reference Include="System.Net" />
+        <Reference Include="System.Runtime.Serialization" />
         <Reference Include="System.Xml" />
         <Reference Include="System.Xaml">
             <RequiredTargetFramework>4.0</RequiredTargetFramework>
@@ -52,7 +53,10 @@
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
         </ApplicationDefinition>
+        <Compile Include="DatePickerWatermark.cs" />
+        <Compile Include="Domain\ColorExtractor.cs" />
         <Compile Include="Domain\CycleModelBuilder.cs" />
+        <Compile Include="Domain\GeometryPainter.cs" />
         <Compile Include="EnumHelper.cs" />
         <Page Include="MainWindow.xaml">
             <Generator>MSBuild:Compile</Generator>
@@ -87,10 +91,11 @@
         <Compile Include="Models\Animal.cs" />
         <Compile Include="Models\BaZiDateModel.cs" />
         <Compile Include="Models\ComboBoxItemModel.cs" />
+        <Compile Include="Models\CycleModelExtensions.cs" />
         <Compile Include="Models\Element.cs" />
         <Compile Include="Models\PentagramModel.cs" />
         <Compile Include="Models\PentagramValuesModel.cs" />
-        <Compile Include="Models\PentagramValuesModelExtensions.cs" />
+        <Compile Include="Models\PentagramModelExtensions.cs" />
         <Compile Include="Properties\AssemblyInfo.cs">
             <SubType>Code</SubType>
         </Compile>

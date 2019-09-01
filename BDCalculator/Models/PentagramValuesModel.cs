@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
+using System.Windows.Media;
 
 namespace BDCalculator.Models
 {
@@ -7,27 +6,27 @@ namespace BDCalculator.Models
     {
         public PentagramValuesModel(int heat, int humidity, int dryness, int cold, int wind)
         {
-            Heat = new DerivativeElement {Value = heat, Position = 0};
-            Humidity = new DerivativeElement {Value = humidity, Position = 1};
-            Dryness = new DerivativeElement {Value = dryness, Position = 2};
-            Cold = new DerivativeElement {Value = cold, Position = 3};
-            Wind = new DerivativeElement {Value = wind, Position = 4};
+            Heat = new PentagramValueModel {Value = heat, Position = 0};
+            Humidity = new PentagramValueModel {Value = humidity, Position = 1};
+            Dryness = new PentagramValueModel {Value = dryness, Position = 2};
+            Cold = new PentagramValueModel {Value = cold, Position = 3};
+            Wind = new PentagramValueModel {Value = wind, Position = 4};
         }
 
         public PentagramValuesModel()
         {
-            Heat = new DerivativeElement {Position = 0};
-            Humidity = new DerivativeElement {Position = 1};
-            Dryness = new DerivativeElement {Position = 2};
-            Cold = new DerivativeElement {Position = 3};
-            Wind = new DerivativeElement {Position = 4};
+            Heat = new PentagramValueModel {Position = 0};
+            Humidity = new PentagramValueModel {Position = 1};
+            Dryness = new PentagramValueModel {Position = 2};
+            Cold = new PentagramValueModel {Position = 3};
+            Wind = new PentagramValueModel {Position = 4};
         }
 
-        public DerivativeElement Heat { get; set; }
-        public DerivativeElement Humidity { get; set; }
-        public DerivativeElement Dryness { get; set; }
-        public DerivativeElement Cold { get; set; }
-        public DerivativeElement Wind { get; set; }
+        public PentagramValueModel Heat { get; set; }
+        public PentagramValueModel Humidity { get; set; }
+        public PentagramValueModel Dryness { get; set; }
+        public PentagramValueModel Cold { get; set; }
+        public PentagramValueModel Wind { get; set; }
 
         public static PentagramValuesModel operator +(PentagramValuesModel a, PentagramValuesModel b) =>
             new PentagramValuesModel
@@ -40,12 +39,12 @@ namespace BDCalculator.Models
             );
     }
 
-    public class DerivativeElement
+    public class PentagramValueModel
     {
         public int Value { get; set; }
-        
         public int Position { get; set; }
-        
-        public bool IsRed { get; set; }
+        public Color Color { get; set; }
+        public bool IsWeak { get; set; }
+        public string Name { get; set; }
     }
 }

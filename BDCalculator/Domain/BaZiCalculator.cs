@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Windows.Media;
 using BDCalculator.Models;
 
 namespace BDCalculator.Domain
@@ -28,9 +29,46 @@ namespace BDCalculator.Domain
             var datePentagramModel = GetPentagramModelBy(baZiDate.Date);
             var hourPentagramModel = GetPentagramModelBy(baZiDate.Hour);
             var seasonPentagramModel = GetPentagramModelBy(baZiDate.Season);
+            
+            var result = yearPentagramModel + monthPentagramModel + datePentagramModel
+                         + hourPentagramModel + seasonPentagramModel;
 
-            return yearPentagramModel + monthPentagramModel + datePentagramModel + hourPentagramModel +
-                   seasonPentagramModel;
+            result.SetColors();
+            SetWeakValue(result.GetInnerValueModels(), true);
+            SetWeakValue(result.GetOuterValueModels(), false);
+
+            return result;
+        }
+
+        private static void SetWeakValue(IReadOnlyList<PentagramValueModel> valueModels, bool isInner)
+        {
+            bool IsThreeRed(int i) => valueModels[i].Color == Colors.Red && valueModels[i + 1].Color == Colors.Red
+                                                                         && valueModels[i + 2].Color == Colors.Red;
+            
+            bool IsTwoRed(int i) => valueModels[i].Color == Colors.Red && valueModels[i + 1].Color == Colors.Red
+                                                                         && valueModels[i + 2].Color == Colors.Blue;
+            
+            for (var i = 0; i < valueModels.Count; i++)
+            {
+                if (i < valueModels.Count - 1 && valueModels[i].Color == Colors.Blue && valueModels[i + 1].Color == Colors.Red)
+                    valueModels[i].IsWeak = true;
+                if (i == 0 && valueModels[i].Color == Colors.Blue && IsThreeRed(i+1))
+                {
+                    valueModels[i].IsWeak = true;
+                    valueModels[i].Name = isInner ? "MC" : "TR";
+                }
+
+                if (i == 0 && valueModels[i].Color == Colors.Blue && IsTwoRed(i+1))
+                {
+                    valueModels[i].IsWeak = true;
+                    valueModels[i].Name = isInner ? "C" : "IG";
+                }
+                if (i == 0 && IsTwoRed(i))
+                    valueModels[valueModels.Count - 1].IsWeak = true;
+
+                if (i == 0 && IsThreeRed(i))
+                    valueModels[valueModels.Count - 1].IsWeak = true;
+            }
         }
 
         private PentagramModel GetPentagramModelBy(BaZiModel baZiModel)
@@ -73,7 +111,7 @@ namespace BDCalculator.Domain
             return ((Element) element, (Animal) animal);
         }
 
-        public DateTime GetChineseBirthDate(DateTime bDate)
+        private DateTime GetChineseBirthDate(DateTime bDate)
         {
             var transformer = new ChineseDateTransformer();
             return transformer.Transform(bDate);
@@ -193,38 +231,41 @@ namespace BDCalculator.Domain
             return new PentagramModel {OuterValues = outer, InnerValues = inner};
         }
 
-        public BaZiModel GetSeason(DateTime dateTime)
+        public BaZiModel GetSeason(DateTime birthDate)
         {
-            DateTime DateTime(int month, int day)
-            {
-                return new DateTime(dateTime.Year, month, day);
-            }
+            var chineseBirthDate = GetChineseBirthDate(birthDate);
+            DateTime DateTime(int month, int day) => new DateTime(chineseBirthDate.Year, month, day);
 
-            bool DoesDateInclude(int beginBorderMonth, int beginBorderDay, int endBorderMonth, int endBorderDay)
-            {
-                return dateTime >= DateTime(beginBorderMonth, beginBorderDay) &&
-                       dateTime <= DateTime(endBorderMonth, endBorderDay);
-            }
+            bool DoesDateInclude(int beginBorderMonth, int beginBorderDay, int endBorderMonth, int endBorderDay) =>
+                birthDate >= DateTime(beginBorderMonth, beginBorderDay) && birthDate <= DateTime(endBorderMonth, endBorderDay);
+            
+            bool DoesMonthInclude(int beginBorderMonth, int endBorderMonth) =>
+                chineseBirthDate.Month >= beginBorderMonth && chineseBirthDate.Month <= endBorderMonth;
 
             Animal animal;
 
-            if (DoesDateInclude(2, 4, 4, 3))
+            if (DoesMonthInclude(2, 3))
                 animal = Animal.Ox;
 
-            else if (DoesDateInclude(4, 4, 6, 5))
+            else if (DoesMonthInclude(4, 4))
+                animal = Animal.Snake;
+            
+            else if (DoesMonthInclude(5, 6))
                 animal = Animal.Horse;
 
-            else if (DoesDateInclude(6, 6, 8, 6))
-                animal = Animal.Dog;
-
-            else if (DoesDateInclude(8, 7, 10, 7))
+            else if (DoesMonthInclude(7, 7))
                 animal = Animal.Snake;
 
-            else if (DoesDateInclude(10, 8, 12, 6))
+            else if (DoesMonthInclude(8, 9))
                 animal = Animal.Tiger;
 
+            else if (DoesMonthInclude(10, 10))
+                animal = Animal.Snake;
+            
+            else if (DoesMonthInclude(11, 12))
+                animal = Animal.Snake;
             else
-                animal = Animal.Rooster;
+                animal = Animal.Snake;
 
             Element element;
 

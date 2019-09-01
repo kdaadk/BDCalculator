@@ -40,16 +40,16 @@ namespace BDCalculator.Domain
             var periods = new List<Period>();
             var start = startPeriod;
             var daysInMonth = DateTime.DaysInMonth(start.Year, start.Month);
-            if (daysInMonth == 29)
-                lengths = new[] {3, 3, 4, 4, 3, 2};
-            if (daysInMonth == 28)
-                lengths = new[] {3, 3, 4, 4, 2, 2};
             for (var i = 0; i < 6; i++)
             {
                 var end = start.AddDays(lengths[i]);
                 
                 if (daysInMonth == 31 && end.Month != start.Month)
                     end = start.AddDays(lengths[i] + 1);
+                if (daysInMonth == 29 && end.Month != start.Month)
+                    end = start.AddDays(lengths[i] - 1);
+                if (daysInMonth == 28 && end.Month != start.Month)
+                    end = start.AddDays(lengths[i] - 2);
                 
                 periods.Add(new Period
                 {

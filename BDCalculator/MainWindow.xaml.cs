@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using BDCalculator.Domain;
@@ -18,6 +20,8 @@ namespace BDCalculator
     public partial class MainWindow
     {
         private readonly BaZiCalculator calculator = new BaZiCalculator();
+        private readonly CycleModelBuilder cycleModelBuilder = new CycleModelBuilder();
+        private readonly GeometryPainter geometryPainter = new GeometryPainter();
         private BaZiDateModel baZiModel;
         private DateTime birthDate;
         private PentagramModel pentagramModel;
@@ -55,11 +59,14 @@ namespace BDCalculator
                     hourComboBox.Items.Add(item);
         }
 
-        private List<ComboBoxItemModel> GetComboBoxItems(int firstElement, int firstAnimal)
+        private IEnumerable<ComboBoxItemModel> GetComboBoxItems(int firstElement, int firstAnimal)
         {
             var items = new List<ComboBoxItemModel>();
             var elementNumber = firstElement;
             var animalNumber = firstAnimal;
+            
+            items.Add(new ComboBoxItemModel());
+            
 
             for (var i = 0; i < 13; i++)
             {
@@ -68,7 +75,8 @@ namespace BDCalculator
                 items.Add(new ComboBoxItemModel
                 {
                     Text =
-                        $"{EnumHelper<Element>.GetDisplayValue(element)}{element}; {EnumHelper<Animal>.GetDisplayValue(animal)}{animal}",
+                        $"{EnumHelper<Element>.GetDisplayValue(element)} {EnumHelper<Element>.GetEnumMemberValue(element)};" +
+                        $" {EnumHelper<Animal>.GetDisplayValue(animal)} {EnumHelper<Animal>.GetEnumMemberValue(animal)}",
                     Value = new BaZiModel {Animal = animal, Element = element}
                 });
                 elementNumber++;
@@ -80,76 +88,143 @@ namespace BDCalculator
             return items;
         }
 
-        private void AddPentagram()
+        private void RenderAnimalsLine(PentagramModel model)
         {
-            var pentagramPolygon = new Polygon
+            var arrowsData = $"{geometryPainter.GetBigArrowData(new Point(10, 14))}" +
+                         $"{geometryPainter.GetBigArrowData(new Point(10, 124))}" +
+                         $"{geometryPainter.GetBigArrowData(new Point(10, 234))}" +
+                         $"{geometryPainter.GetSmallArrowData(new Point(65, 40))}" +
+                         $"{geometryPainter.GetSmallArrowData(new Point(65, 150))}" +
+                         $"{geometryPainter.GetSmallArrowData(new Point(65, 260))}";
+            canvas.Children.Add(new Path
             {
-                Points = new PointCollection
+                Data = Geometry.Parse(arrowsData),
+                Stroke = Brushes.Black
+            });
+            
+            var yPositions = new[] { 5, 31, 59, 85, 115, 141, 169, 195, 225, 251, 279, 305};
+            var animalAbbreviations = new[] { "MC", "TR", "VB", "F", "P", "GI", "E", "RP", "C", "IG", "V", "R"};
+            var valueModels = model.GetAllValueModels();
+            var starData = "";
+
+            for (var a = 0; a < 12; a++)
+            {
+                AddTextToCanvas(30, yPositions[a], animalAbbreviations[a], valueModels[a].Color);
+                if (valueModels[a].IsWeak && valueModels[a].Name != null)
                 {
-                    new Point(150, 50), new Point(250, 125),
-                    new Point(200, 225), new Point(200, 225),
-                    new Point(100, 225), new Point(50, 125)
-                },
-                Stroke = Brushes.Black,
-                StrokeThickness = 2
+                    var index = animalAbbreviations.Select((abbr, i) => new {abbr, i})
+                        .Where(x => x.abbr == valueModels[a].Name).Select(x => x.i).First();
+                    starData += geometryPainter.GetStarData(new Point(30, yPositions[index]));
+                }
+                if (valueModels[a].IsWeak && valueModels[a].Name == null)
+                    starData += geometryPainter.GetStarData(new Point(30, yPositions[a]));
+            }
+            
+            canvas.Children.Add(new Path
+            {
+                Data = Geometry.Parse(starData),
+                Stroke = Brushes.Blue
+            });
+        }
+
+        private void RenderBaZiBirthModel(BaZiDateModel baZiModel)
+        {
+            AddTextToCanvas(290, 10, "час");
+            if (baZiModel.Hour != null)
+                RenderBaZiPeriodModel("час", 290, baZiModel.Hour);
+
+            RenderBaZiPeriodModel("день", 350, baZiModel.Date);
+            RenderBaZiPeriodModel("месяц", 410, baZiModel.Month);
+            RenderBaZiPeriodModel("год", 470, baZiModel.Year);
+            geometryPainter.PaintRectangle(canvas, new Point(285, 50), 250, 40);
+        }
+        
+        private void RenderBaZiEventModel(DateTime? eventDate)
+        {
+            if (!eventDate.HasValue)
+                return;
+            
+            var baZiEventModel = calculator.GetBaZiDateModel(eventDate.Value);
+            RenderBaZiPeriodModel("день", 650, baZiEventModel.Date);
+            RenderBaZiPeriodModel("месяц", 710, baZiEventModel.Month);
+            RenderBaZiPeriodModel("год", 770, baZiEventModel.Year);
+            geometryPainter.PaintRectangle(canvas, new Point(645, 50), 190, 40 );
+            
+            RenderCycles(new Point(350, 120));
+        }
+
+        private void RenderCycles(Point point)
+        {
+            void RenderHeader(Point startPoint, string header) => AddTextToCanvas(startPoint.X, startPoint.Y, header);
+            void RenderNamePeriod(Point startPoint, string name) => AddTextToCanvas(startPoint.X, startPoint.Y, name);
+
+            void RenderElement(Point startPoint, DateTime date, SolidColorBrush fillColor = null)
+            {
+                AddTextToCanvas(startPoint.X - 35, startPoint.Y + 20, $"{date:dd.MM}");
+                AddTextToCanvas(startPoint.X - 35, startPoint.Y + 35, $"{date.Year}");
+                geometryPainter.PaintSmallPentagram(canvas, new Point(startPoint.X + 15, startPoint.Y + 20), fillColor);
+            }
+
+            var cycleModel = cycleModelBuilder.Build(birthDate, eventDatePicker.SelectedDate.Value);
+            var cycles = cycleModel.GetAllCycles();
+            var points = new[]
+            {
+                point, new Point(point.X + 90, point.Y), new Point(point.X + 180, point.Y),
+                new Point(point.X + 270, point.Y), new Point(point.X + 360, point.Y), new Point(point.X + 450, point.Y)
+            };
+            var headers = new[] {"Ветер", "Тепло", "Жар", "Влажность", "Сухость", "Холод"};
+            var names = new[] {"БЦ", "ГЦ", "СЦ", "МЦ", "ДЦ"};
+            var colors = new[] {Brushes.Green, Brushes.Red, Brushes.Orange, Brushes.Yellow, Brushes.Gray, Brushes.Blue};
+
+            for (var i = 0; i < 6; i++)
+            {
+                RenderHeader(points[i], headers[i]);
+                if (i < 5)
+                    RenderNamePeriod(new Point(point.X - 70, point.Y + i * 40 + 40), names[i]);
+
+                for (var j = 0; j < 5; j++)
+                {
+                    var periodColor = cycles[j].EventPeriod.Number == i ? colors[i] : null;
+                    RenderElement(new Point(points[i].X, points[i].Y + 40 * j + 10), cycles[j].Periods[i].Start, periodColor);
+                }
+            }
+        }
+
+        private void RenderBaZiPeriodModel(string period, int x, BaZiModel model)
+        {
+            var elementColor = ColorExtractor.Extract(model.Element);
+            var animalColor = ColorExtractor.Extract(model.Animal);
+            AddTextToCanvas(x, 10, period);
+            AddTextToCanvas(x, 30, EnumHelper<Element>.GetEnumMemberValue(model.Element), elementColor);
+            AddTextToCanvas(x, 50, EnumHelper<Element>.GetDisplayValue(model.Element), elementColor);
+            AddTextToCanvas(x, 70, EnumHelper<Animal>.GetDisplayValue(model.Animal), animalColor);
+            AddTextToCanvas(x, 90, EnumHelper<Animal>.GetEnumMemberValue(model.Animal), animalColor);
+        }
+
+        private void RenderPentagram(PentagramModel pentagram)
+        {
+            geometryPainter.PaintPentagram(canvas, new Point(170, 30));
+            var points = geometryPainter.GetPentagramValuesPoints(new Point(163, 10));
+            var pentagramValueModels = new[]
+            {
+                pentagram.OuterValues.Heat, pentagram.InnerValues.Heat,
+                pentagram.OuterValues.Humidity, pentagram.InnerValues.Humidity,
+                pentagram.OuterValues.Dryness, pentagram.InnerValues.Dryness,
+                pentagram.OuterValues.Cold, pentagram.InnerValues.Cold,
+                pentagram.OuterValues.Wind, pentagram.InnerValues.Wind
             };
 
-            canvas.Children.Add(pentagramPolygon);
+            for (var i = 0; i < 10; i++)
+                AddNumberToCanvas(points[i].X, points[i].Y, pentagramValueModels[i]);
+            
+            geometryPainter.PaintPentagram(canvas, new Point(170, 130));
+            geometryPainter.PaintPentagram(canvas, new Point(170, 230));
+            geometryPainter.PaintPentagram(canvas, new Point(170, 330));
+
         }
 
-        private void AddBaZiModel(BaZiDateModel baZiModel)
-        {
-            var dateBaZiModel = $"date: {baZiModel.Date}";
-            var monthBaZiModel = $"month: {baZiModel.Month}";
-            var yearBaZiModel = $"year: {baZiModel.Year}";
-
-            AddTextToCanvas(300, 10, dateBaZiModel);
-            AddTextToCanvas(300, 30, monthBaZiModel);
-            AddTextToCanvas(300, 50, yearBaZiModel);
-
-            if (baZiModel.Hour != null)
-            {
-                AddTextToCanvas(300, 70, $"hour: {baZiModel.Hour}");
-                if (baZiModel.Season != null)
-                    AddTextToCanvas(300, 90, $"season: {baZiModel.Season}");
-            }
-            else if (baZiModel.Season != null)
-            {
-                AddTextToCanvas(300, 70, $"season: {baZiModel.Season}");
-            }
-        }
-
-        private void AddPentagramValues(PentagramModel pentagram)
-        {
-            var innerMax = pentagram.InnerValues.GetMax();
-            var outerMax = pentagram.OuterValues.GetMax();
-            if (innerMax > outerMax)
-                pentagram.InnerValues.SetRedColor();
-            else if (outerMax > innerMax)
-                pentagram.OuterValues.SetRedColor();
-            else 
-                pentagram.OuterValues.SetRedColor();
-
-            AddNumberToCanvas(145, 25, pentagram.OuterValues.Heat); //heat
-            AddNumberToCanvas(145, 75, pentagram.InnerValues.Heat);
-
-            AddNumberToCanvas(265, 115, pentagram.OuterValues.Humidity); //humidity
-            AddNumberToCanvas(215, 115, pentagram.InnerValues.Humidity);
-
-            AddNumberToCanvas(190, 235, pentagram.OuterValues.Dryness); //dryness
-            AddNumberToCanvas(190, 195, pentagram.InnerValues.Dryness);
-
-            AddNumberToCanvas(105, 235, pentagram.OuterValues.Cold); //cold
-            AddNumberToCanvas(105, 195, pentagram.InnerValues.Cold);
-
-            AddNumberToCanvas(25, 115, pentagram.OuterValues.Wind); //wind
-            AddNumberToCanvas(75, 115, pentagram.InnerValues.Wind);
-        }
-
-        private void AddNumberToCanvas(double x, double y, DerivativeElement element)
-        {
-            AddTextToCanvas(x, y, element.Value.ToString(), element.IsRed ? Colors.Red : Colors.Black);
-        }
+        private void AddNumberToCanvas(double x, double y, PentagramValueModel element) =>
+            AddTextToCanvas(x, y, element.Value.ToString(), element.Color);
 
         private void AddTextToCanvas(double x, double y, string text, Color? color = null)
         {
@@ -168,10 +243,11 @@ namespace BDCalculator
         {
             if (baZiModel == null)
             {
-                MessageBox.Show("Select a birthday", "No date selected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Выберите дату рождения", "Дата рождения не выбрана", MessageBoxButton.OK, MessageBoxImage.Warning);
+                seasonCheckBox.IsChecked = false;
                 return;
             }
-
+            
             var season = calculator.GetSeason(birthDate);
             baZiModel.Season = season;
             Render();
@@ -179,6 +255,8 @@ namespace BDCalculator
 
         private void seasonCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
+            if (baZiModel == null)
+                return;
             baZiModel.Season = null;
             Render();
         }
@@ -186,11 +264,12 @@ namespace BDCalculator
         private void Render()
         {
             canvas.Children.Clear();
-
-            AddPentagram();
-            AddBaZiModel(baZiModel);
             pentagramModel = calculator.GetPentagram(baZiModel);
-            AddPentagramValues(pentagramModel);
+            
+            RenderPentagram(pentagramModel);
+            RenderBaZiBirthModel(baZiModel);
+            RenderBaZiEventModel(eventDatePicker.SelectedDate);
+            RenderAnimalsLine(pentagramModel);
         }
 
         private void BirthDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -204,37 +283,23 @@ namespace BDCalculator
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (hourComboBox.SelectedItem != null)
+            var selectedItem = (ComboBoxItemModel) hourComboBox.SelectedItem;
+            if (selectedItem.Value == null)
             {
-                var item = (ComboBoxItemModel) hourComboBox.SelectedItem;
-                baZiModel.Hour = new BaZiModel {Animal = item.Value.Animal, Element = item.Value.Element};
-
+                baZiModel.Hour = null;
+                Render();
+            }
+            else
+            {
+                baZiModel.Hour = new BaZiModel {Animal = selectedItem.Value.Animal, Element = selectedItem.Value.Element};
                 Render();
             }
         }
 
         private void EventDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            void AddPeriodToCanvas(Period period, int y)
-            {
-                AddTextToCanvas(300, y,
-                    period.Start.ToShortDateString() + " - " + period.End.ToShortDateString() + " / " + period.Energy);
-            }
-
-            var cycleModel = GetCycleModel();
-            AddPeriodToCanvas(cycleModel.Big.EventPeriod, 170);
-            AddPeriodToCanvas(cycleModel.Year.EventPeriod, 190);
-            AddPeriodToCanvas(cycleModel.Season.EventPeriod, 210);
-            AddPeriodToCanvas(cycleModel.Month.EventPeriod, 230);
-            AddPeriodToCanvas(cycleModel.Day.EventPeriod, 250);
-        }
-
-        private CycleModel GetCycleModel()
-        {
-            var eventDate = eventDatePicker.SelectedDate.Value;
-            var builder = new CycleModelBuilder();
-
-            return builder.Build(birthDate, eventDate);
+            if (eventDatePicker.SelectedDate.HasValue)
+                Render();
         }
     }
 }

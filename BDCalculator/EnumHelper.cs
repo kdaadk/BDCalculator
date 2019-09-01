@@ -1,60 +1,47 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
+using System.Runtime.Serialization;
 
-public static class EnumHelper<T>
+namespace BDCalculator
 {
-    public static IList<T> GetValues(Enum value)
+    public static class EnumHelper<T>
     {
-        var enumValues = new List<T>();
+        public static string GetDisplayValue(T value)
+        {
+            var fieldInfo = value.GetType().GetField(value.ToString());
 
-        foreach (var fi in value.GetType().GetFields(BindingFlags.Static | BindingFlags.Public))
-            enumValues.Add((T) Enum.Parse(value.GetType(), fi.Name, false));
-        return enumValues;
-    }
+            var descriptionAttributes = fieldInfo.GetCustomAttributes(
+                typeof(DisplayAttribute), false) as DisplayAttribute[];
 
-    public static T Parse(string value)
-    {
-        return (T) Enum.Parse(typeof(T), value, true);
-    }
+            if (descriptionAttributes[0].ResourceType != null)
+                return LookupResource(descriptionAttributes[0].ResourceType, descriptionAttributes[0].Name);
 
-    public static IList<string> GetNames(Enum value)
-    {
-        return value.GetType().GetFields(BindingFlags.Static | BindingFlags.Public).Select(fi => fi.Name).ToList();
-    }
+            if (descriptionAttributes == null) return string.Empty;
+            return descriptionAttributes.Length > 0 ? descriptionAttributes[0].Name : value.ToString();
+        }
+    
+        public static string GetEnumMemberValue(T enumVal)
+        {
+            var enumType = typeof(T);
+            var memInfo = enumType.GetMember(enumVal.ToString());
+            var attr = memInfo[0].GetCustomAttributes(false).OfType<EnumMemberAttribute>().FirstOrDefault();
+            return attr?.Value;
+        }
+    
+        private static string LookupResource(Type resourceManagerProvider, string resourceKey)
+        {
+            foreach (var staticProperty in resourceManagerProvider.GetProperties(
+                BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public))
+                if (staticProperty.PropertyType == typeof(ResourceManager))
+                {
+                    var resourceManager = (ResourceManager) staticProperty.GetValue(null, null);
+                    return resourceManager.GetString(resourceKey);
+                }
 
-    public static IList<string> GetDisplayValues(Enum value)
-    {
-        return GetNames(value).Select(obj => GetDisplayValue(Parse(obj))).ToList();
-    }
-
-    private static string lookupResource(Type resourceManagerProvider, string resourceKey)
-    {
-        foreach (var staticProperty in resourceManagerProvider.GetProperties(
-            BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public))
-            if (staticProperty.PropertyType == typeof(ResourceManager))
-            {
-                var resourceManager = (ResourceManager) staticProperty.GetValue(null, null);
-                return resourceManager.GetString(resourceKey);
-            }
-
-        return resourceKey; // Fallback with the key name
-    }
-
-    public static string GetDisplayValue(T value)
-    {
-        var fieldInfo = value.GetType().GetField(value.ToString());
-
-        var descriptionAttributes = fieldInfo.GetCustomAttributes(
-            typeof(DisplayAttribute), false) as DisplayAttribute[];
-
-        if (descriptionAttributes[0].ResourceType != null)
-            return lookupResource(descriptionAttributes[0].ResourceType, descriptionAttributes[0].Name);
-
-        if (descriptionAttributes == null) return string.Empty;
-        return descriptionAttributes.Length > 0 ? descriptionAttributes[0].Name : value.ToString();
+            return resourceKey; // Fallback with the key name
+        }
     }
 }

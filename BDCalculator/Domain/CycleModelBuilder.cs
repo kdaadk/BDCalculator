@@ -14,16 +14,16 @@ namespace BDCalculator.Domain
 
             var yearCyclePeriods = GetCyclePeriods(bigCycle.EventPeriod.Start, 24);
             var yearCycleEventPeriod = GetEventPeriod(yearCyclePeriods, eventDate);
-            var yearCycle = new PeriodsModel{Periods = yearCyclePeriods, EventPeriod = yearCycleEventPeriod};
-            
+            var yearCycle = new PeriodsModel {Periods = yearCyclePeriods, EventPeriod = yearCycleEventPeriod};
+
             var seasonCyclePeriods = GetCyclePeriods(yearCycle.EventPeriod.Start, 4);
             var seasonCycleEventPeriod = GetEventPeriod(seasonCyclePeriods, eventDate);
-            var seasonCycle = new PeriodsModel{Periods = seasonCyclePeriods, EventPeriod = seasonCycleEventPeriod};
+            var seasonCycle = new PeriodsModel {Periods = seasonCyclePeriods, EventPeriod = seasonCycleEventPeriod};
 
             var monthCyclePeriods = GetCycleMonthPeriods(seasonCycle.EventPeriod.Start);
             var monthCycleEventPeriod = GetEventPeriod(monthCyclePeriods, eventDate);
             var monthCycle = new PeriodsModel {Periods = monthCyclePeriods, EventPeriod = monthCycleEventPeriod};
-            
+
             var dayCyclePeriods = GetCycleDayPeriods(monthCycle.EventPeriod.Start);
             var dayCycleEventPeriod = GetEventPeriod(dayCyclePeriods, eventDate);
             var dayCycle = new PeriodsModel {Periods = dayCyclePeriods, EventPeriod = dayCycleEventPeriod};
@@ -33,7 +33,7 @@ namespace BDCalculator.Domain
 
             return cycleModel;
         }
-        
+
         private List<Period> GetCycleDayPeriods(DateTime startPeriod)
         {
             var lengths = new[] {3, 3, 4, 4, 3, 3};
@@ -43,14 +43,14 @@ namespace BDCalculator.Domain
             for (var i = 0; i < 6; i++)
             {
                 var end = start.AddDays(lengths[i]);
-                
-                if (daysInMonth == 31 && end.Month != start.Month)
+
+                if (daysInMonth == 31 && (end.Month != start.Month || end.Day == 31))
                     end = start.AddDays(lengths[i] + 1);
                 if (daysInMonth == 29 && end.Month != start.Month)
                     end = start.AddDays(lengths[i] - 1);
                 if (daysInMonth == 28 && end.Month != start.Month)
                     end = start.AddDays(lengths[i] - 2);
-                
+
                 periods.Add(new Period
                 {
                     Start = start,
@@ -61,6 +61,7 @@ namespace BDCalculator.Domain
                 });
                 start = periods.Last().End;
             }
+
             return periods;
         }
 
@@ -80,9 +81,10 @@ namespace BDCalculator.Domain
                 });
                 start = periods.Last().End;
             }
+
             return periods;
         }
-        
+
         private List<Period> GetCycleMonthPeriods(DateTime startPeriod)
         {
             var periods = new List<Period>();
@@ -92,7 +94,10 @@ namespace BDCalculator.Domain
                 var end = start.AddDays(20);
                 if (start.Month != end.Month)
                     end = start.AddMonths(1).AddDays(-10);
-                
+
+                if (end.Day == 31)
+                    end = start.AddDays(21);
+
                 periods.Add(new Period
                 {
                     Start = start,
@@ -103,14 +108,17 @@ namespace BDCalculator.Domain
                 });
                 start = periods.Last().End;
             }
+
             return periods;
         }
 
 
-        private Period GetEventPeriod(List<Period> periods, DateTime eventDate) =>
-            periods.First(x => eventDate >= x.Start && eventDate <= x.End);
+        private Period GetEventPeriod(IEnumerable<Period> periods, DateTime eventDate)
+        {
+            return periods.First(x => eventDate >= x.Start && eventDate < x.End);
+        }
     }
-    
+
     public class CycleModel
     {
         public PeriodsModel Big { get; set; }
@@ -119,7 +127,7 @@ namespace BDCalculator.Domain
         public PeriodsModel Month { get; set; }
         public PeriodsModel Day { get; set; }
     }
-    
+
     public class PeriodsModel
     {
         public List<Period> Periods { get; set; }

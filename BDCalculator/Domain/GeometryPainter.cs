@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,7 +29,7 @@ namespace BDCalculator.Domain
 
             return data.ToString();
         }
-            
+
         public string GetSmallArrowData(Point point)
         {
             var data = new StringBuilder();
@@ -63,7 +64,7 @@ namespace BDCalculator.Domain
             data.Append($" L {point.X + 15} {point.Y + 20}");
             return data.ToString();
         }
-        
+
         public void PaintPentagram(Canvas canvas, Point point)
         {
             canvas.Children.Add(new Polygon
@@ -80,7 +81,7 @@ namespace BDCalculator.Domain
                 StrokeThickness = 2
             });
         }
-        
+
         public void PaintSmallPentagram(Canvas canvas, Point point, SolidColorBrush fillColor)
         {
             canvas.Children.Add(new Polygon
@@ -98,9 +99,10 @@ namespace BDCalculator.Domain
                 StrokeThickness = 2
             });
         }
-        
-        public Point[] GetPentagramValuesPoints(Point point) =>
-            new[]
+
+        public Point[] GetPentagramValuesPoints(Point point)
+        {
+            return new[]
             {
                 point, //heat
                 new Point(point.X, point.Y + 27),
@@ -113,22 +115,90 @@ namespace BDCalculator.Domain
                 new Point(point.X - 60, point.Y + 48), //wind
                 new Point(point.X - 35, point.Y + 48)
             };
+        }
 
         public void PaintRectangle(Canvas canvas, Point start, int width, int height)
         {
             canvas.Children.Add(new Polygon
-                        {
-                            Points = new PointCollection
-                            {
-                                start,
-                                new Point(start.X + width, start.Y),
-                                new Point(start.X + width, start.Y + height),
-                                new Point(start.X, start.Y + height),
-                                new Point(start.X, start.Y)
-                            },
-                            Stroke = Brushes.Black,
-                            StrokeThickness = 1
-                        });
+            {
+                Points = new PointCollection
+                {
+                    start,
+                    new Point(start.X + width, start.Y),
+                    new Point(start.X + width, start.Y + height),
+                    new Point(start.X, start.Y + height),
+                    new Point(start.X, start.Y)
+                },
+                Stroke = Brushes.Black,
+                StrokeThickness = 1
+            });
+        }
+
+        private string GetEnergyCircleRightArrowData(Point point)
+        {
+            return GetEnergyCircleHorizontalArrowData(point, (66, 60));
+        }
+
+        private string GetEnergyCircleLeftArrowData(Point point)
+        {
+            return GetEnergyCircleHorizontalArrowData(point, (-66, -60));
+        }
+
+        public string GetEnergyCircleDownArrowData(Point point, int length)
+        {
+            return GetEnergyCircleVerticalArrowData(point, (length, length - 6));
+        }
+
+        public string GetEnergyCircleUpArrowData(Point point, int length)
+        {
+            return GetEnergyCircleVerticalArrowData(point, (-length, -length + 6));
+        }
+
+        public string GetEnergyCircleArrowsData(IReadOnlyList<Point> points)
+        {
+            var data = new StringBuilder();
+
+            for (var i = 0; i < 3; i++)
+            {
+                data.Append(
+                    $"{GetEnergyCircleLeftArrowData(new Point(points[0 + i * 4].X - 5, points[0 + i * 4].Y + 10))}");
+                data.Append(
+                    $"{GetEnergyCircleDownArrowData(new Point(points[1 + i * 4].X + 10, points[1 + i * 4].Y + 25), 66)}");
+                data.Append(
+                    $"{GetEnergyCircleRightArrowData(new Point(points[2 + i * 4].X + 25, points[2 + i * 4].Y + 10))}");
+                data.Append(
+                    $"{GetEnergyCircleUpArrowData(new Point(points[3 + i * 4].X + 10, points[3 + i * 4].Y - 5), 66)}");
+            }
+
+            return data.ToString();
+        }
+
+        private static string GetEnergyCircleHorizontalArrowData(Point point, (int, int) offset)
+        {
+            var data = new StringBuilder();
+            var (far, near) = offset;
+
+            data.Append($" M {point.X} {point.Y}");
+            data.Append($" L {point.X + far} {point.Y}");
+            data.Append($" L {point.X + near} {point.Y - 4}");
+            data.Append($" M {point.X + far} {point.Y}");
+            data.Append($" L {point.X + near} {point.Y + 4}");
+
+            return data.ToString();
+        }
+
+        private string GetEnergyCircleVerticalArrowData(Point point, (int, int) offset)
+        {
+            var data = new StringBuilder();
+            var (far, near) = offset;
+
+            data.Append($" M {point.X} {point.Y}");
+            data.Append($" L {point.X} {point.Y + far}");
+            data.Append($" L {point.X - 4} {point.Y + near}");
+            data.Append($" M {point.X} {point.Y + far}");
+            data.Append($" L {point.X + 4} {point.Y + near}");
+
+            return data.ToString();
         }
     }
 }

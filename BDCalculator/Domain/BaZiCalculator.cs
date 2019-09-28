@@ -22,14 +22,14 @@ namespace BDCalculator.Domain
             };
         }
 
-        public PentagramModel GetPentagram(BaZiDateModel baZiDate)
+        public SetUpPentagramModel GetPentagram(BaZiDateModel baZiDate)
         {
             var yearPentagramModel = GetPentagramModelBy(baZiDate.Year);
             var monthPentagramModel = GetPentagramModelBy(baZiDate.Month);
             var datePentagramModel = GetPentagramModelBy(baZiDate.Date);
             var hourPentagramModel = GetPentagramModelBy(baZiDate.Hour);
             var seasonPentagramModel = GetPentagramModelBy(baZiDate.Season);
-            
+
             var result = yearPentagramModel + monthPentagramModel + datePentagramModel
                          + hourPentagramModel + seasonPentagramModel;
 
@@ -42,27 +42,35 @@ namespace BDCalculator.Domain
 
         private static void SetWeakValue(IReadOnlyList<PentagramValueModel> valueModels, bool isInner)
         {
-            bool IsThreeRed(int i) => valueModels[i].Color == Colors.Red && valueModels[i + 1].Color == Colors.Red
-                                                                         && valueModels[i + 2].Color == Colors.Red;
-            
-            bool IsTwoRed(int i) => valueModels[i].Color == Colors.Red && valueModels[i + 1].Color == Colors.Red
-                                                                         && valueModels[i + 2].Color == Colors.Blue;
-            
+            bool IsThreeRed(int i)
+            {
+                return valueModels[i].Color.IsRed() && valueModels[i + 1].Color.IsRed()
+                                                          && valueModels[i + 2].Color.IsRed();
+            }
+
+            bool IsTwoRed(int i)
+            {
+                return valueModels[i].Color.IsRed() && valueModels[i + 1].Color.IsRed()
+                                                          && valueModels[i + 2].Color == Colors.Blue;
+            }
+
             for (var i = 0; i < valueModels.Count; i++)
             {
-                if (i < valueModels.Count - 1 && valueModels[i].Color == Colors.Blue && valueModels[i + 1].Color == Colors.Red)
+                if (i < valueModels.Count - 1 && valueModels[i].Color == Colors.Blue &&
+                    valueModels[i + 1].Color.IsRed())
                     valueModels[i].IsWeak = true;
-                if (i == 0 && valueModels[i].Color == Colors.Blue && IsThreeRed(i+1))
+                if (i == 0 && valueModels[i].Color == Colors.Blue && IsThreeRed(i + 1))
                 {
                     valueModels[i].IsWeak = true;
                     valueModels[i].Name = isInner ? "MC" : "TR";
                 }
 
-                if (i == 0 && valueModels[i].Color == Colors.Blue && IsTwoRed(i+1))
+                if (i == 0 && valueModels[i].Color == Colors.Blue && IsTwoRed(i + 1))
                 {
                     valueModels[i].IsWeak = true;
                     valueModels[i].Name = isInner ? "C" : "IG";
                 }
+
                 if (i == 0 && IsTwoRed(i))
                     valueModels[valueModels.Count - 1].IsWeak = true;
 
@@ -71,10 +79,10 @@ namespace BDCalculator.Domain
             }
         }
 
-        private PentagramModel GetPentagramModelBy(BaZiModel baZiModel)
+        private SetUpPentagramModel GetPentagramModelBy(BaZiModel baZiModel)
         {
             if (baZiModel == null)
-                return new PentagramModel
+                return new SetUpPentagramModel
                     {InnerValues = new PentagramValuesModel(), OuterValues = new PentagramValuesModel()};
 
             var pentagramValues = GetValuesBy(baZiModel);
@@ -84,7 +92,7 @@ namespace BDCalculator.Domain
             var outerElement = pentagramValues.elementsPentagram.OuterValues;
             var innerElement = pentagramValues.elementsPentagram.InnerValues;
 
-            return new PentagramModel
+            return new SetUpPentagramModel
                 {InnerValues = innerAnimal + innerElement, OuterValues = outerAnimal + outerElement};
         }
 
@@ -132,7 +140,8 @@ namespace BDCalculator.Domain
             return ((Element) element, (Animal) animal);
         }
 
-        private (PentagramModel elementsPentagram, PentagramModel animalsPentagram) GetValuesBy(BaZiModel source)
+        private (SetUpPentagramModel elementsPentagram, SetUpPentagramModel animalsPentagram) GetValuesBy(
+            BaZiModel source)
         {
             var elementsPentagram = GetPentagramValuesByElements(source.Element);
             var animalsPentagram = GetPentagramValuesByAnimals(source.Animal);
@@ -140,7 +149,7 @@ namespace BDCalculator.Domain
             return (elementsPentagram, animalsPentagram);
         }
 
-        private PentagramModel GetPentagramValuesByElements(Element element)
+        private SetUpPentagramModel GetPentagramValuesByElements(Element element)
         {
             switch (element)
             {
@@ -173,7 +182,7 @@ namespace BDCalculator.Domain
             throw new ArgumentException();
         }
 
-        private PentagramModel GetPentagramValuesByAnimals(Animal animal)
+        private SetUpPentagramModel GetPentagramValuesByAnimals(Animal animal)
         {
             switch (animal)
             {
@@ -210,7 +219,7 @@ namespace BDCalculator.Domain
             throw new ArgumentException();
         }
 
-        private PentagramModel SetValues(IReadOnlyList<int> values)
+        private SetUpPentagramModel SetValues(IReadOnlyList<int> values)
         {
             var outer = new PentagramValuesModel
             (
@@ -228,19 +237,28 @@ namespace BDCalculator.Domain
                 SumElements - values[3],
                 SumElements - values[4]
             );
-            return new PentagramModel {OuterValues = outer, InnerValues = inner};
+            return new SetUpPentagramModel {OuterValues = outer, InnerValues = inner};
         }
 
         public BaZiModel GetSeason(DateTime birthDate)
         {
             var chineseBirthDate = GetChineseBirthDate(birthDate);
-            DateTime DateTime(int month, int day) => new DateTime(chineseBirthDate.Year, month, day);
 
-            bool DoesDateInclude(int beginBorderMonth, int beginBorderDay, int endBorderMonth, int endBorderDay) =>
-                birthDate >= DateTime(beginBorderMonth, beginBorderDay) && birthDate <= DateTime(endBorderMonth, endBorderDay);
-            
-            bool DoesMonthInclude(int beginBorderMonth, int endBorderMonth) =>
-                chineseBirthDate.Month >= beginBorderMonth && chineseBirthDate.Month <= endBorderMonth;
+            DateTime DateTime(int month, int day)
+            {
+                return new DateTime(chineseBirthDate.Year, month, day);
+            }
+
+            bool DoesDateInclude(int beginBorderMonth, int beginBorderDay, int endBorderMonth, int endBorderDay)
+            {
+                return birthDate >= DateTime(beginBorderMonth, beginBorderDay) &&
+                       birthDate <= DateTime(endBorderMonth, endBorderDay);
+            }
+
+            bool DoesMonthInclude(int beginBorderMonth, int endBorderMonth)
+            {
+                return chineseBirthDate.Month >= beginBorderMonth && chineseBirthDate.Month <= endBorderMonth;
+            }
 
             Animal animal;
 
@@ -249,7 +267,7 @@ namespace BDCalculator.Domain
 
             else if (DoesMonthInclude(4, 4))
                 animal = Animal.Snake;
-            
+
             else if (DoesMonthInclude(5, 6))
                 animal = Animal.Horse;
 
@@ -261,9 +279,9 @@ namespace BDCalculator.Domain
 
             else if (DoesMonthInclude(10, 10))
                 animal = Animal.Snake;
-            
+
             else if (DoesMonthInclude(11, 12))
-                animal = Animal.Snake;
+                animal = Animal.Rooster;
             else
                 animal = Animal.Snake;
 

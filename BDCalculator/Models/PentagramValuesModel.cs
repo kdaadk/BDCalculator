@@ -22,14 +22,15 @@ namespace BDCalculator.Models
             Wind = new PentagramValueModel {Position = 4};
         }
 
-        public PentagramValueModel Heat { get; set; }
-        public PentagramValueModel Humidity { get; set; }
-        public PentagramValueModel Dryness { get; set; }
-        public PentagramValueModel Cold { get; set; }
-        public PentagramValueModel Wind { get; set; }
+        public PentagramValueModel Heat { get; }
+        public PentagramValueModel Humidity { get; }
+        public PentagramValueModel Dryness { get; }
+        public PentagramValueModel Cold { get; }
+        public PentagramValueModel Wind { get; }
 
-        public static PentagramValuesModel operator +(PentagramValuesModel a, PentagramValuesModel b) =>
-            new PentagramValuesModel
+        public static PentagramValuesModel operator +(PentagramValuesModel a, PentagramValuesModel b)
+        {
+            return new PentagramValuesModel
             (
                 a.Heat.Value + b.Heat.Value,
                 a.Humidity.Value + b.Humidity.Value,
@@ -37,6 +38,7 @@ namespace BDCalculator.Models
                 a.Cold.Value + b.Cold.Value,
                 a.Wind.Value + b.Wind.Value
             );
+        }
     }
 
     public class PentagramValueModel

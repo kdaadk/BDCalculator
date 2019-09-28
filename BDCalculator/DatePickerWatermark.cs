@@ -1,10 +1,10 @@
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media;
+
 namespace BDCalculator
 {
-    using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Controls.Primitives;
-    using System.Windows.Media;
-
     public static class DatePickerWatermarkBehaviour
     {
         public static readonly DependencyProperty WatermarkProperty =
@@ -30,9 +30,9 @@ namespace BDCalculator
             if (datePicker == null)
                 return;
 
-            if ((e.NewValue != null) && (e.OldValue == null))
+            if (e.NewValue != null && e.OldValue == null)
                 datePicker.Loaded += DatePickerLoaded;
-            else if ((e.NewValue == null) && (e.OldValue != null))
+            else if (e.NewValue == null && e.OldValue != null)
                 datePicker.Loaded -= DatePickerLoaded;
         }
 
@@ -62,7 +62,7 @@ namespace BDCalculator
             for (var i = 0; i < VisualTreeHelper.GetChildrenCount(dependencyObject); i++)
             {
                 var child = VisualTreeHelper.GetChild(dependencyObject, i);
-                var result = (child as T) ?? GetFirstChildOfType<T>(child);
+                var result = child as T ?? GetFirstChildOfType<T>(child);
                 if (result != null)
                     return result;
             }

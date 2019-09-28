@@ -22,7 +22,7 @@ namespace BDCalculator
             if (descriptionAttributes == null) return string.Empty;
             return descriptionAttributes.Length > 0 ? descriptionAttributes[0].Name : value.ToString();
         }
-    
+
         public static string GetEnumMemberValue(T enumVal)
         {
             var enumType = typeof(T);
@@ -30,7 +30,7 @@ namespace BDCalculator
             var attr = memInfo[0].GetCustomAttributes(false).OfType<EnumMemberAttribute>().FirstOrDefault();
             return attr?.Value;
         }
-    
+
         private static string LookupResource(Type resourceManagerProvider, string resourceKey)
         {
             foreach (var staticProperty in resourceManagerProvider.GetProperties(

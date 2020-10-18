@@ -1,0 +1,48 @@
+﻿<Window x:Class="BDCalculator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:bdCalculator="clr-namespace:BDCalculator"
+        mc:Ignorable="d"
+        Title="Birthday Calculator" Height="750" Width="1000">
+    <Grid>
+        <Label HorizontalAlignment="Center" Margin="-600,0,0,0" VerticalAlignment="Top">Дата рождения</Label>
+        <DatePicker Name="birthDatePicker" HorizontalAlignment="Center" Margin="-700,26,0,0"
+                    VerticalAlignment="Top" Width="115" SelectedDateChanged="BirthDatePicker_SelectedDateChanged"
+                    bdCalculator:DatePickerWatermarkBehaviour.Watermark="Выбрать дату" />
+
+        <StackPanel Grid.Column="0" Margin="-500,28,0,0" VerticalAlignment="Top"
+                    HorizontalAlignment="Center" Width="75">
+            <ComboBox Name="birthHourComboBox"
+                      Text="Час"
+                      IsEditable="true"
+                      IsReadOnly="true"
+                      SelectionChanged="BirthHourComboBox_SelectionChanged" />
+        </StackPanel>
+
+        <CheckBox IsChecked="False" VerticalAlignment="Top" Margin="-360,32,0,0"
+                  HorizontalAlignment="Center" Content="Сезон" Checked="seasonCheckBox_Checked"
+                  Unchecked="seasonCheckBox_Unchecked" Name="seasonCheckBox" />
+
+        <Label HorizontalAlignment="Center" Margin="30,0,0,0" VerticalAlignment="Top">Дата заболевания</Label>
+        <DatePicker Name="eventDatePicker" HorizontalAlignment="Center" Margin="30,26,0,0"
+                    VerticalAlignment="Top" Width="115" SelectedDateChanged="EventDatePicker_SelectedDateChanged"
+                    bdCalculator:DatePickerWatermarkBehaviour.Watermark="Выбрать дату" />
+
+        <Label HorizontalAlignment="Center" Margin="600,0,0,0" VerticalAlignment="Top">Дата приема</Label>
+        <DatePicker Name="receptionDatePicker" HorizontalAlignment="Center" Margin="500,26,0,0"
+                    VerticalAlignment="Top" Width="115" SelectedDateChanged="ReceptionDatePicker_SelectedDateChanged"
+                    bdCalculator:DatePickerWatermarkBehaviour.Watermark="Выбрать дату" />
+        <StackPanel Grid.Column="0" Margin="700,28,0,0" VerticalAlignment="Top"
+                    HorizontalAlignment="Center" Width="75">
+            <ComboBox Name="receptionHourComboBox"
+                      Text="Час"
+                      IsEditable="true"
+                      IsReadOnly="true"
+                      SelectionChanged="ReceptionHourComboBox_SelectionChanged" />
+        </StackPanel>
+
+        <Canvas Name="canvas" Background="Lavender" Height="600" Width="900" VerticalAlignment="Top" Margin="0,70,0,20" />
+    </Grid>
+</Window>
